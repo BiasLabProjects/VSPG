@@ -1,0 +1,21 @@
+# VSPG core image — see Dockerfile. For SustainGym use
+# docker/docker-compose.sustaingym.yml instead (separate image).
+services:
+  vspg-core:
+    container_name: vspg_core
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vspg-core:latest
+    volumes:
+      - .:/workspace
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

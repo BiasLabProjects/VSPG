@@ -1,0 +1,29 @@
+# Standalone config for the isolated SGD-based VSPG ablation on
+# MiniGrid-DoorKey-8x8-v0. Mirrors (does not modify) the winning
+# hyperparameters from vspg/configs/doorkey8x8_bipolar.yaml,
+# cross-checked against the completed 5-seed production run at
+# results_vspg_baselines/bipolar_vspg/DoorKey-8x8_t100_e001_seed{0..4}*/config.yaml
+# (success_rate_last100: 1.0 at seed 42).
+
+env_id: MiniGrid-DoorKey-8x8-v0
+variant: real          # read by collect_episode() to select encode() vs encode_bipolar()
+encoder_type: bipolar   # HDCEncoder -- best encoder for DoorKey-8x8 per docs/PLAN_2WEEK.md
+dim: 10000
+obs_view_size: 7
+episodes: 5000
+gamma: 0.99
+eta: 0.001              # OnlineHD/VSPG learning rate -- shared by all 4 variants
+tau: 10.0                # softmax temperature
+advantage_type: reinforce
+group_size: 1
+row_normalize: true      # used by the manual_vspg (RealHDPolicy) variant only
+device: cuda              # falls back to cpu with a warning if unavailable, same as train.py
+seed: 42                  # overridden per run by run_ablation.py --seeds
+
+# Decision (confirmed with user): Adam's lr defaults to eta, identical to the
+# other 3 variants -- a pure ablation of the update rule with every other
+# hyperparameter held fixed. Override independently here for a future
+# best-effort-Adam comparison if desired.
+adam_lr: 0.001
+
+variants: [manual_vspg, sgd_normalized, sgd_unnormalized, adam_normalized]

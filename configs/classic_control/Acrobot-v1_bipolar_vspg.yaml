@@ -1,0 +1,27 @@
+env_id: Acrobot-v1
+variant: real
+dim: 10000
+episodes: 10000
+advantage_type: gae
+group_size: 1
+gamma: 0.99
+seed: 42
+device: cuda
+log_interval: 50
+save_interval: 1000
+checkpoint_dir: checkpoints
+log_dir: logs
+save_summary_json: true
+use_wandb: false
+wandb_project: vspg
+obs_flat_dim: 6
+encoder_type: bipolar
+tau: 10.0
+eta: 0.001
+gae_lambda: 0.95
+ppo_clip_eps: 0.2
+value_fn_hidden_sizes:
+- 128
+- 128
+value_fn_lr: 0.0003
+method_name: bipolar_vspg

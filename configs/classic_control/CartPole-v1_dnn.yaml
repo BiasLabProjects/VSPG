@@ -1,0 +1,22 @@
+env_id: CartPole-v1
+variant: mlp_reinforce
+encoder_type: flat
+obs_dim: 4
+mlp_hidden:
+- 128
+- 64
+mlp_lr: 0.0003
+episodes: 10000
+tau: 1.0
+eta: 0.0003
+method_name: dnn
+gamma: 0.99
+seed: 42
+device: cuda
+log_interval: 50
+save_interval: 1000
+checkpoint_dir: checkpoints
+log_dir: logs
+save_summary_json: true
+use_wandb: false
+wandb_project: vspg

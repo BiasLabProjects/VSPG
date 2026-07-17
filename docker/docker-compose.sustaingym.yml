@@ -1,0 +1,21 @@
+services:
+  sustaingym:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.sustaingym
+    image: vspg-sustaingym:latest
+    container_name: vspg_sustaingym
+    volumes:
+      - ..:/workspace
+    environment:
+      - PYTHONPATH=/workspace
+    # GPU support (requires NVIDIA Container Toolkit on host); remove for CPU-only
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true

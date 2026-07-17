@@ -1,0 +1,53 @@
+# VSPG SustainGym image — separate from the core Dockerfile at the repo root
+# because sustaingym[building]'s env_building.yml pulls in conda-only physics
+# deps that don't reliably pip install. Uses micromamba to install the
+# official sustaingym_building conda environment.
+#
+# Build:
+#   docker compose -f docker/docker-compose.sustaingym.yml build
+# Shell:
+#   docker compose -f docker/docker-compose.sustaingym.yml run --rm sustaingym bash
+
+FROM mambaorg/micromamba:1.5.8
+
+USER root
+
+# System deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        build-essential \
+        procps \
+        less \
+        vim \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# ── Step 1: clone SustainGym to get the conda env spec, then create the env ──
+RUN git clone --depth 1 https://github.com/chrisyeh96/sustaingym.git /opt/sustaingym && \
+    micromamba env create -f /opt/sustaingym/env_building.yml && \
+    micromamba clean --all --yes
+
+# ── Step 2: activate env for all subsequent RUN commands ─────────────────────
+ARG MAMBA_DOCKERFILE_ACTIVATE=1
+ENV CONDA_DEFAULT_ENV=sustaingym_building
+SHELL ["micromamba", "run", "-n", "sustaingym_building", "/bin/bash", "-c"]
+
+# ── Step 3: install SustainGym building extras (already cloned in Step 1) ────
+RUN pip install --no-cache-dir "/opt/sustaingym[building]"
+
+# ── Step 4: expose the VSPG repo root on PYTHONPATH ──────────────────────────
+# At runtime, the full repo is mounted at /workspace (see docker-compose).
+# envs/, policies/, critics/, vspg/ are all reachable from there.
+ENV PYTHONPATH="/workspace:${PYTHONPATH}"
+
+# ── Step 5: shell convenience ─────────────────────────────────────────────────
+# Auto-activate sustaingym_building in interactive bash so that `python`, `pip`,
+# etc. work without prefixing every command with `micromamba run -n ...`.
+SHELL ["/bin/bash", "-c"]
+RUN micromamba shell init -s bash && \
+    echo "micromamba activate sustaingym_building" >> /root/.bashrc
+
+# Default: activate env and drop into bash
+ENTRYPOINT ["micromamba", "run", "-n", "sustaingym_building"]
+CMD ["bash"]

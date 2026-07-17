@@ -1,0 +1,22 @@
+env_id: MiniGrid-Empty-5x5-v0
+variant: mlp_reinforce
+encoder_type: flat
+obs_dim: 148
+mlp_hidden:
+- 128
+- 64
+mlp_lr: 0.0001
+episodes: 2000
+tau: 1.0
+eta: 0.0001
+method_name: dnn
+gamma: 0.99
+seed: 42
+device: cuda
+log_interval: 50
+save_interval: 1000
+checkpoint_dir: checkpoints
+log_dir: logs
+save_summary_json: true
+use_wandb: false
+wandb_project: vspg
